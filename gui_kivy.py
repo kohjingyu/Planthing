@@ -28,26 +28,34 @@ import json
 import time
 import math
 
-screen_width = 800
+screen_width = 800 
 screen_height = 500
 
 Config.set('graphics', 'width', screen_width)
 Config.set('graphics', 'height', screen_height)
 
+<<<<<<< HEAD
 humidity_log_file = "logs/humidity.txt"
 temperature_log_file = "logs/temperature.txt"
 
 def load_data():
+=======
+def load_data(): # reading plant data from external file dump
+>>>>>>> origin/master
     try:
-        with open("plants.json", "r") as f:
+        with open("plants.json", "r") as f: 
             try:
                 plants = json.load(f)
             except ValueError:
                 plants = {}
+<<<<<<< HEAD
 
             f.close()
     except IOError:
         # Default data
+=======
+    except IOError: # setting default data if cannot read from file
+>>>>>>> origin/master
         plants = [{"plant_id": 0, "plant_image": "Graphics/plants/plant1.png", "name": "Sunny", "owner": "Caleb", "water": 10, "temp": 30, "fertilizer": 50, "last_watered": time.time(), "last_fertilized": time.time()},
         {"plant_id": 1, "plant_image": "Graphics/plants/plant2.png", "name": "Me", "owner": "Samuel", "water": 10, "temp": 30, "fertilizer": 50, "last_watered": time.time(), "last_fertilized": time.time()},
         {"plant_id": 2, "plant_image": "Graphics/plants/plant3.png", "name": "Mr Wu", "owner": "Shangjing", "water": 10, "temp": 30, "fertilizer": 50, "last_watered": time.time(), "last_fertilized": time.time()},
@@ -55,7 +63,7 @@ def load_data():
         
     return plants
 
-def save_data():
+def save_data(): # saving new plant data to external file dump
     with open("plants.json", "w") as f:
         json.dump(plants, f)
         f.close()
@@ -75,7 +83,8 @@ def log_data():
 class ImageButton(ButtonBehavior, Image):
     pass
 
-class MainMenu(Screen):
+
+class MainMenu(Screen): 
     ''' Main Menu of the application '''
 
     def __init__(self, **kwargs):
@@ -83,50 +92,64 @@ class MainMenu(Screen):
 
         grid_layout = GridLayout(cols=2)
 
+        # left side of display
         layout_left=FloatLayout()
 
-        # Colored background for left side of main menu
+        # colored background for left side of main menu
         layout_left.canvas.add(Color(0.8314, 0.7569, 0.4824))
         layout_left.canvas.add(Rectangle(pos=(0,0),size=(screen_width/2,screen_height),orientation='horizontal'))
         layout_left.add_widget(Label(text="[b][size=42][color=#594a42]PLANTHING[/color][/size][/b]", markup=True,
             size_hint=(.5, .5), pos_hint={'x':.25, 'y':.4}))
 
+<<<<<<< HEAD
         temp_humidity = sensors.get_humidity_temp()
+=======
+        # reading humidity and temp using sensors.get_humidity_temp()
+        temp_humidity = {"temperature": 0, "humidity": 1 } 
+>>>>>>> origin/master
 
         temperature_string = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
         humidity_string = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
-        # light_string = "Light: 10 lumens"
 
+        # temperature display
         self.temperature_widget = Label(text=temperature_string, markup=True, size_hint=(.5, .05), pos_hint={'x':.25, 'y':0.2})
         layout_left.add_widget(self.temperature_widget)
+        
+        # humidity display
         self.humidity_widget = Label(text=humidity_string, markup=True, size_hint=(.5, .05), pos_hint={'x':.25, 'y':0.15})
         layout_left.add_widget(self.humidity_widget)
+        
         # self.light_widget = Label(text=light_string, size_hint=(.5, .5), pos_hint={'x':.25, 'y':0.0})
         # layout_left.add_widget(light_widget)
+        # light_string = "Light: 10 lumens"
 
+        # four plants on display
         layout_right = FloatLayout(cols=2, row_force_default=True, row_default_height=screen_height/2)
         layout_right.canvas.add(Color(1, 1, 1))
         layout_right.canvas.add(Rectangle(pos=(screen_width/2,0),size=(screen_width/2,screen_height),orientation='horizontal'))
 
-        # Initialize the plants
-        plant_size = 0.3
-        plant_padding = (0.5 - plant_size)/2
+        # initialize the plants
+        plant_size = 0.3 # plant image width is 30% of width
+        plant_padding = (0.5 - plant_size)/2 # total space for each plant is 50%
         positions = [(plant_padding, plant_padding), (0.5 + plant_padding, plant_padding), (plant_padding, 0.5 + plant_padding), (0.5 + plant_padding, 0.5 + plant_padding)]
         for i in range(len(plants)):
             plant = plants[i]
             (x, y) = positions[i]
 
+            # each plant icon is a button
             plant_button = ImageButton(source=plant["plant_image"], on_press=partial(self.view_detail, plant_id=plant["plant_id"]),
                 size_hint=(plant_size, plant_size), pos_hint={'x': x, 'y': y})
             layout_right.add_widget(plant_button)
             plant_background = Rectangle(pos=(x, y), size=(plant_size,plant_size), orientation='horizontal')
             layout_right.canvas.add(plant_background)
 
+            # adding in names of plants
             plant_text = "[b][color=#594a42]{0}[/color][/b]".format(plant['name'])
             label_height = 0.05
             label_offset = 0.09
             layout_right.add_widget(Label(text=plant_text, markup=True, size_hint=(plant_size, label_height), pos_hint={'x': x, 'y': y - plant_size/2 + label_offset}))
 
+        # add left and right screens
         grid_layout.add_widget(layout_left)
         grid_layout.add_widget(layout_right)
 
@@ -134,8 +157,15 @@ class MainMenu(Screen):
 
     def update(self, *args):
         ''' Update data from all sensors '''
+<<<<<<< HEAD
         temp_humidity = sensors.get_humidity_temp()
+=======
 
+        temp_humidity = {"temperature": random.randrange(20, 35), "humidity": random.randrange(30, 90) } # test code
+        ## sensors.get_humidity_temp() # run code
+>>>>>>> origin/master
+
+        # formatting humidity and temperature text
         self.temperature_widget.text = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
         self.humidity_widget.text = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
 
@@ -143,38 +173,46 @@ class MainMenu(Screen):
         log_data()
 
     def view_detail(self, object, plant_id):
+        ''' specific plant veiew '''
         self.manager.transition.direction = "left"
         self.manager.get_screen("detail").update(plant_id)
         self.manager.current = "detail"
 
 class Detail(Screen):
+    ''' plant details screen ''' 
     def __init__(self, **kwargs):
-        super(Detail, self).__init__(**kwargs)
+        super(Detail, self).__init__(**kwargs) # detail superclass
         grid_layout = GridLayout(cols=2)
 
         self.plant = None
 
+        # left side
         left_layout = FloatLayout()
+
+        # background colour
         left_layout.canvas.add(Color(0.8314, 0.7569, 0.4824))
         left_layout.canvas.add(Rectangle(pos=(0,0),size=(screen_width/2,screen_height),orientation='horizontal'))
 
-        left_layout.canvas.add(Color(1, 1, 1))
-        left_layout.canvas.add(Rectangle(pos=(screen_width/2,0),size=(screen_width/2,screen_height),orientation='horizontal'))
-
-        left_layout.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
-
-        self.plant_name_label = Label(text="[b][size=18][color=#594a42]Name: Plant[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0.05})
-        left_layout.add_widget(self.plant_name_label)
-
-        self.owner_name_label = Label(text="[b][size=18][color=#594a42]Owned By: Person[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0})
-        left_layout.add_widget(self.owner_name_label)
-
-        right_layout = FloatLayout()
-
-        # Add plant image
+        # plant image
         plant_size = 0.6
         self.plant_image = Image(source="", size_hint=(plant_size, plant_size), pos_hint={'x': (1 - plant_size)/2, 'y': (1 - plant_size)/2})
         left_layout.add_widget(self.plant_image)
+
+        left_layout.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
+
+        # plant name and owner labels
+        self.plant_name_label = Label(text="[b][size=18][color=#594a42]Name: Plant[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0.05})
+        self.owner_name_label = Label(text="[b][size=18][color=#594a42]Owned By: Person[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0})
+        left_layout.add_widget(self.plant_name_label)
+        left_layout.add_widget(self.owner_name_label)
+
+
+        # right side
+        right_layout = FloatLayout()
+
+        # background colour
+        right_layout.canvas.add(Color(1, 1, 1))
+        right_layout.canvas.add(Rectangle(pos=(screen_width/2,0),size=(screen_width/2,screen_height),orientation='horizontal'))
 
         # Water and fertilizer buttons
         btn_size = .3
@@ -189,19 +227,25 @@ class Detail(Screen):
         progress_start_y = 0.8
         progress_bar_height = 0.1
 
+        # temperature bar
         right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Temperature: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y}))
         self.temperature_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y})
         self.temperature_bar.value = 80
+        ## model to be corrected
         right_layout.add_widget(self.temperature_bar)
 
+        # water bar
         right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Water: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - progress_bar_height}))
         self.water_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y - progress_bar_height})
         self.water_bar.value = 55
+        ## model to be corrected
         right_layout.add_widget(self.water_bar)
 
+        # fertilizer bar
         right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Fertilizer: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - 2*progress_bar_height}))
         self.fertilizer_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y - 2*progress_bar_height})
         self.fertilizer_bar.value = 90
+        ## model to be corrected
         right_layout.add_widget(self.fertilizer_bar)
 
         grid_layout.add_widget(left_layout)
@@ -209,35 +253,37 @@ class Detail(Screen):
         self.add_widget(grid_layout)
 
     def update(self, plant_id):
+        ''' grabbing plant data from dictionary as user interacts  and every 3 seconds'''
         self.plant = plants[plant_id]
         self.plant_name_label.text = "[size=18][color=#594a42][b]Name:[/b] {0}[/color][/size]".format(self.plant["name"])
         self.owner_name_label.text = "[size=18][color=#594a42][b]Owned by:[/b] {0}[/color][/size]".format(self.plant["owner"])
 
-        # Update plant image
+        # update plant image
         self.plant_image.source = self.plant["plant_image"]
 
+        # update temperature to current temp
         self.temperature_bar.value = self.plant["temp"]
 
-        # Adjust water based on last water level
+        # adjust water based on last water level
         self.water_bar.value = loss_functions.calculate_water_loss(self.plant["water"], self.plant["last_watered"])
 
-        # Adjust fertilizer based on last fertilizer level
+        # adjust fertilizer based on last fertilizer level
         self.fertilizer_bar.value = loss_functions.calculate_fertilizer_loss(self.plant["fertilizer"], self.plant["last_fertilized"])
 
-    def update_data(self):
-        self.plant_name_label.text = "[size=18][color=#594a42][b]Name:[/b] {0}[/color][/size]".format(self.plant["name"])
-        self.owner_name_label.text = "[size=18][color=#594a42][b]Owned by:[/b] {0}[/color][/size]".format(self.plant["owner"])
-
+    def update_data(self): 
+        ''' update data on water or fertilization of plant '''
+        
         self.temperature_bar.value = self.plant["temp"]
-
         self.water_bar.value = self.plant["water"]
         self.fertilizer_bar.value = self.plant["fertilizer"]
 
     def water(self, object):
-        # Turn on water pump for 2 seconds
+        ''' water plants '''
+        
+        # turn on water pump for 2 seconds
         pump.pump(1, 2)
 
-        # Update plant stats
+        # update plant stats
         self.plant["water"] += 5
         self.plant["last_watered"] = time.time()
         self.update_data()
@@ -246,12 +292,12 @@ class Detail(Screen):
         # self.water_btn.disabled = True
 
     def fertilize(self, object):
-        # Turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
+        # turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
         pump_number = self.plant["plant_id"] + 2
     	print pump_number
         pump.pump(pump_number, 2)
 
-        # Update plant stats
+        # update plant stats
         self.plant["fertilizer"] += 5
         self.plant["last_fertilized"] = time.time()
         self.update_data()
