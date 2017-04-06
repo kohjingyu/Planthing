@@ -1,5 +1,5 @@
-# import sensors
-# import pump
+import sensors
+import pump
 import loss_functions
 
 from kivy.app import App
@@ -34,6 +34,9 @@ screen_height = 500
 Config.set('graphics', 'width', screen_width)
 Config.set('graphics', 'height', screen_height)
 
+humidity_log_file = "logs/humidity.txt"
+temperature_log_file = "logs/temperature.txt"
+
 def load_data():
     try:
         with open("plants.json", "r") as f:
@@ -41,6 +44,8 @@ def load_data():
                 plants = json.load(f)
             except ValueError:
                 plants = {}
+
+            f.close()
     except IOError:
         # Default data
         plants = [{"plant_id": 0, "plant_image": "Graphics/plants/plant1.png", "name": "Sunny", "owner": "Caleb", "water": 10, "temp": 30, "fertilizer": 50, "last_watered": time.time(), "last_fertilized": time.time()},
@@ -53,6 +58,19 @@ def load_data():
 def save_data():
     with open("plants.json", "w") as f:
         json.dump(plants, f)
+        f.close()
+
+def log_data():
+    temp_humidity = sensors.get_humidity_temp()
+    temperature, humidity = temp_humidity["temperature"], temp_humidity["humidity"]
+
+    with open(humidity_log_file, "a") as f:
+        f.write("{0}: {1}".format(time.time(), humidity))
+        f.close()
+
+    with open(temperature_log_file, "a") as f:
+        f.write("{0}: {1}".format(time.time(), temperature))
+        f.close()
 
 class ImageButton(ButtonBehavior, Image):
     pass
@@ -73,7 +91,7 @@ class MainMenu(Screen):
         layout_left.add_widget(Label(text="[b][size=42][color=#594a42]PLANTHING[/color][/size][/b]", markup=True,
             size_hint=(.5, .5), pos_hint={'x':.25, 'y':.4}))
 
-        temp_humidity = {"temperature": 0, "humidity": 1 } #sensors.get_humidity_temp()
+        temp_humidity = sensors.get_humidity_temp()
 
         temperature_string = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
         humidity_string = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
@@ -116,11 +134,13 @@ class MainMenu(Screen):
 
     def update(self, *args):
         ''' Update data from all sensors '''
-
-        temp_humidity = {"temperature": random.randrange(20, 35), "humidity": random.randrange(30, 90) } # sensors.get_humidity_temp()
+        temp_humidity = sensors.get_humidity_temp()
 
         self.temperature_widget.text = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
         self.humidity_widget.text = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
+
+        # Log the humidity and temperature values to file
+        log_data()
 
     def view_detail(self, object, plant_id):
         self.manager.transition.direction = "left"
@@ -228,6 +248,7 @@ class Detail(Screen):
     def fertilize(self, object):
         # Turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
         pump_number = self.plant["plant_id"] + 2
+    	print pump_number
         pump.pump(pump_number, 2)
 
         # Update plant stats
@@ -246,6 +267,7 @@ class MyApp(App):
     def build(self):
         sm = ScreenManager()
         main = MainMenu(name="main")
+        
         detail = Detail(name="detail")
 
         sm.add_widget(main)
