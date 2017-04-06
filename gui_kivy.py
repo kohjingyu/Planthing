@@ -69,16 +69,16 @@ class MainMenu(Screen):
         layout_left=FloatLayout()
 
         # colored background for left side of main menu
-        layout_left.canvas.add(Color(0.8314, 0.7569, 0.4824))
+        layout_left.canvas.add(Color(0.968627451, 0.8274509804, 0.5490196078))
         layout_left.canvas.add(Rectangle(pos=(0,0),size=(screen_width/2,screen_height),orientation='horizontal'))
-        layout_left.add_widget(Label(text="[b][size=42][color=#594a42]PLANTHING[/color][/size][/b]", markup=True,
+        layout_left.add_widget(Label(text="[b][size=42][color=#1c222a]PLANTHING[/color][/size][/b]", markup=True,
             size_hint=(.5, .5), pos_hint={'x':.25, 'y':.4}))
 
         # reading humidity and temp using sensors.get_humidity_temp()
         temp_humidity = {"temperature": 0, "humidity": 1 } 
 
-        temperature_string = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
-        humidity_string = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
+        temperature_string = "[b][size=18][color=#1c222a]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
+        humidity_string = "[b][size=18][color=#1c222a]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
 
         # temperature display
         self.temperature_widget = Label(text=temperature_string, markup=True, size_hint=(.5, .05), pos_hint={'x':.25, 'y':0.2})
@@ -113,7 +113,7 @@ class MainMenu(Screen):
             layout_right.canvas.add(plant_background)
 
             # adding in names of plants
-            plant_text = "[b][color=#594a42]{0}[/color][/b]".format(plant['name'])
+            plant_text = "[b][color=#1c222a]{0}[/color][/b]".format(plant['name'])
             label_height = 0.05
             label_offset = 0.09
             layout_right.add_widget(Label(text=plant_text, markup=True, size_hint=(plant_size, label_height), pos_hint={'x': x, 'y': y - plant_size/2 + label_offset}))
@@ -131,8 +131,8 @@ class MainMenu(Screen):
         ## sensors.get_humidity_temp() # run code
 
         # formatting humidity and temperature text
-        self.temperature_widget.text = "[b][size=18][color=#594a42]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
-        self.humidity_widget.text = "[b][size=18][color=#594a42]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
+        self.temperature_widget.text = "[b][size=18][color=#1c222a]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
+        self.humidity_widget.text = "[b][size=18][color=#1c222a]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
 
     def view_detail(self, object, plant_id):
         ''' specific plant veiew '''
@@ -152,7 +152,7 @@ class Detail(Screen):
         left_layout = FloatLayout()
 
         # background colour
-        left_layout.canvas.add(Color(0.8314, 0.7569, 0.4824))
+        left_layout.canvas.add(Color(0.968627451, 0.8274509804, 0.5490196078))
         left_layout.canvas.add(Rectangle(pos=(0,0),size=(screen_width/2,screen_height),orientation='horizontal'))
 
         # plant image
@@ -163,8 +163,8 @@ class Detail(Screen):
         left_layout.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
 
         # plant name and owner labels
-        self.plant_name_label = Label(text="[b][size=18][color=#594a42]Name: Plant[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0.05})
-        self.owner_name_label = Label(text="[b][size=18][color=#594a42]Owned By: Person[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0})
+        self.plant_name_label = Label(text="[b][size=18][color=#1c222a]Name: Plant[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0.05})
+        self.owner_name_label = Label(text="[b][size=18][color=#1c222a]Owned By: Person[/color][/size][/b]", markup=True, size_hint=(1, 0.1), pos_hint={'x': 0, 'y': 0})
         left_layout.add_widget(self.plant_name_label)
         left_layout.add_widget(self.owner_name_label)
 
@@ -190,21 +190,21 @@ class Detail(Screen):
         progress_bar_height = 0.1
 
         # temperature bar
-        right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Temperature: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y}))
+        right_layout.add_widget(Label(text="[b][size=18][color=#1c222a]Temperature: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y}))
         self.temperature_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y})
         self.temperature_bar.value = 80
         ## model to be corrected
         right_layout.add_widget(self.temperature_bar)
 
         # water bar
-        right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Water: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - progress_bar_height}))
+        right_layout.add_widget(Label(text="[b][size=18][color=#1c222a]Water: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - progress_bar_height}))
         self.water_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y - progress_bar_height})
         self.water_bar.value = 55
         ## model to be corrected
         right_layout.add_widget(self.water_bar)
 
         # fertilizer bar
-        right_layout.add_widget(Label(text="[b][size=18][color=#594a42]Fertilizer: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - 2*progress_bar_height}))
+        right_layout.add_widget(Label(text="[b][size=18][color=#1c222a]Fertilizer: [/color][/size][/b]", markup=True, size_hint=(0.1, progress_bar_height), pos_hint={'x': 0.2, 'y': progress_start_y - 2*progress_bar_height}))
         self.fertilizer_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y - 2*progress_bar_height})
         self.fertilizer_bar.value = 90
         ## model to be corrected
@@ -217,8 +217,8 @@ class Detail(Screen):
     def update(self, plant_id):
         ''' grabbing plant data from dictionary as user interacts  and every 3 seconds'''
         self.plant = plants[plant_id]
-        self.plant_name_label.text = "[size=18][color=#594a42][b]Name:[/b] {0}[/color][/size]".format(self.plant["name"])
-        self.owner_name_label.text = "[size=18][color=#594a42][b]Owned by:[/b] {0}[/color][/size]".format(self.plant["owner"])
+        self.plant_name_label.text = "[size=18][color=#1c222a][b]Name:[/b] {0}[/color][/size]".format(self.plant["name"])
+        self.owner_name_label.text = "[size=18][color=#1c222a][b]Owned by:[/b] {0}[/color][/size]".format(self.plant["owner"])
 
         # update plant image
         self.plant_image.source = self.plant["plant_image"]
@@ -234,7 +234,7 @@ class Detail(Screen):
 
     def update_data(self): 
         ''' update data on water or fertilization of plant '''
-        
+
         self.temperature_bar.value = self.plant["temp"]
         self.water_bar.value = self.plant["water"]
         self.fertilizer_bar.value = self.plant["fertilizer"]
