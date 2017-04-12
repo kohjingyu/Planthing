@@ -28,7 +28,7 @@ import json
 import time
 import math
 
-screen_width = 800 
+screen_width = 800
 screen_height = 500
 
 Config.set('graphics', 'width', screen_width)
