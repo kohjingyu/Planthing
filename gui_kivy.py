@@ -1,6 +1,7 @@
 # import sensors
 # import pump
-import loss_functions
+from loss_functions import loss_functions
+from loss_functions import loss_functions2
 # from plant_detail_screen import Detail
 
 from kivy.app import App
@@ -27,8 +28,8 @@ import json
 import time
 import math
 
-loss_SM = loss_functions.loss_functions()
-loss_SM.start()
+loss_functions().start()
+loss_functions2().start()
 
 screen_width = 800
 screen_height = 500
@@ -167,7 +168,8 @@ class MainMenu(Screen):
         self.add_widget(grid_layout)
         self.grid_layout = grid_layout
 
-        self.pump_command='stop'
+        self.pump_command_for_water='stop'
+        self.pump_command_for_fertiliser='stop'
 
     def add_plant(self, *args):
         ''' Move to the add plant screen '''
@@ -189,11 +191,21 @@ class MainMenu(Screen):
 
         last_water_time = plants[0]["last_watered"]
 
-        self.pump_command = loss_SM.step(last_water_time)
-        if self.pump_command == 'auto_water':
+        self.pump_command_for_water = loss_functions().step(last_water_time)
+        if self.pump_command_for_water == 'auto_water':
             pump.pump(1,2)
             self.plant["water"] += 5
             self.plant["last_watered"] = time.time()
+            self.update_data()
+            save_data()
+        self.pump_command_for_fertiliser = loss_functions2().step(last_water_time)
+        if self.pump_command_for_fertiliser == 'auto_fertilise':
+            pump_number = self.plant["plant_id"] + 2
+            print pump_number
+            pump.pump(pump_number, 2)
+            # update plant stats
+            self.plant["fertilizer"] += 5
+            self.plant["last_fertilized"] = time.time()
             self.update_data()
             save_data()
 
@@ -320,7 +332,7 @@ class Detail(Screen):
         ''' water plants '''
         
         # turn on water pump for 2 seconds
-        if self.pump_command == 'available':
+        if self.pump_command_for_water == 'available':
             pump.pump(1, 2)
             # update plant stats
             self.plant["water"] += 5
@@ -332,15 +344,15 @@ class Detail(Screen):
 
     def fertilize(self, object):
         # turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
-        pump_number = self.plant["plant_id"] + 2
-        print pump_number
-        pump.pump(pump_number, 2)
-
-        # update plant stats
-        self.plant["fertilizer"] += 5
-        self.plant["last_fertilized"] = time.time()
-        self.update_data()
-        save_data()
+        if self.pump_command_for_fertiliser == 'available':
+            pump_number = self.plant["plant_id"] + 2
+            print pump_number
+            pump.pump(pump_number, 2)
+            # update plant stats
+            self.plant["fertilizer"] += 5
+            self.plant["last_fertilized"] = time.time()
+            self.update_data()
+            save_data()
 
         # self.fertilizer_btn.disabled = True
 
