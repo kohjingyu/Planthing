@@ -1,5 +1,5 @@
-# import sensors
-# import pump
+import sensors
+import pump
 from loss_functions import loss_functions
 from loss_functions import loss_functions2
 # from plant_detail_screen import Detail
@@ -28,16 +28,28 @@ import json
 import time
 import math
 
-loss_functions().start()
-loss_functions2().start()
-
 screen_width = 800
 screen_height = 500
 
 # Config.set('graphics', 'width', screen_width)
 # Config.set('graphics', 'height', screen_height)
 
-Window.size = (screen_width, screen_height)
+#Window.size = (screen_width, screen_height)
+
+
+# Initialize state machines
+waterSM = loss_functions()
+waterSM.start()
+
+fertSM1 = loss_functions2()
+fertSM1.start()
+fertSM2 = loss_functions2()
+fertSM2.start()
+fertSM3 = loss_functions2()
+fertSM3.start()
+fertSM4 = loss_functions2()
+fertSM4.start()
+fertSM = [fertSM1, fertSM2, fertSM3, fertSM4]
 
 humidity_log_file = "logs/humidity.txt"
 temperature_log_file = "logs/temperature.txt"
@@ -64,7 +76,7 @@ def save_data(): # saving new plant data to external file dump
         f.close()
 
 def log_data():
-    temp_humidity = {'temperature': 0, 'humidity': 0 } #sensors.get_humidity_temp()
+    temp_humidity = sensors.get_humidity_temp() # {'temperature': 0, 'humidity': 0 } 
     temperature, humidity = temp_humidity["temperature"], temp_humidity["humidity"]
 
     with open(humidity_log_file, "a") as f:
@@ -85,6 +97,9 @@ class MainMenu(Screen):
         super(MainMenu, self).__init__(**kwargs)
 
         self.addPlant = None # This will be set to the addPlants Screen later on
+        self.pump_command_for_water='stop'
+        self.pump_command_for_fertiliser=['stop'] * len(plants)
+
         self.update_plants()
 
     def update_plants(self, *args):
@@ -105,7 +120,7 @@ class MainMenu(Screen):
             size_hint=(.5, .5), pos_hint={'x':.25, 'y':.4}))
 
         # reading humidity and temp using sensors.get_humidity_temp()
-        temp_humidity = {'temperature': 0, 'humidity': 0 } #sensors.get_humidity_temp()
+        temp_humidity = sensors.get_humidity_temp() #{'temperature': 0, 'humidity': 0 }
 
         temperature_string = "[b][size=18][color=#1c222a]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
         humidity_string = "[b][size=18][color=#1c222a]Humidity: {0}%[/color][/size][/b]".format(temp_humidity["humidity"])
@@ -168,9 +183,6 @@ class MainMenu(Screen):
         self.add_widget(grid_layout)
         self.grid_layout = grid_layout
 
-        self.pump_command_for_water='stop'
-        self.pump_command_for_fertiliser='stop'
-
     def add_plant(self, *args):
         ''' Move to the add plant screen '''
         self.manager.transition.direction = "left"
@@ -180,7 +192,7 @@ class MainMenu(Screen):
 
     def update(self, *args):
         ''' Update data from all sensors '''
-        temp_humidity = {'temperature': 0, 'humidity': 0 } #sensors.get_humidity_temp()
+        temp_humidity = sensors.get_humidity_temp() #{'temperature': 0, 'humidity': 0 }
 
         # formatting humidity and temperature text
         self.temperature_widget.text = "[b][size=18][color=#1c222a]Temperature: {0} C[/color][/size][/b]".format(temp_humidity["temperature"])
@@ -190,24 +202,23 @@ class MainMenu(Screen):
         log_data()
 
         last_water_time = plants[0]["last_watered"]
-
-        self.pump_command_for_water = loss_functions().step(last_water_time)
+        self.pump_command_for_water = waterSM.step(last_water_time)
         if self.pump_command_for_water == 'auto_water':
-            pump.pump(1,2)
-            self.plant["water"] += 5
-            self.plant["last_watered"] = time.time()
-            self.update_data()
+            pump.pump(1,5)
+            plants[0]["water"] += 5
+            plants[0]["last_watered"] = time.time()
             save_data()
-        self.pump_command_for_fertiliser = loss_functions2().step(last_water_time)
-        if self.pump_command_for_fertiliser == 'auto_fertilise':
-            pump_number = self.plant["plant_id"] + 2
-            print pump_number
-            pump.pump(pump_number, 2)
-            # update plant stats
-            self.plant["fertilizer"] += 5
-            self.plant["last_fertilized"] = time.time()
-            self.update_data()
-            save_data()
+
+        for i in range(len(plants)):
+            last_fertilized = plants[i]["last_fertilized"]
+            self.pump_command_for_fertiliser[i] = fertSM[i].step(last_fertilized)
+            if self.pump_command_for_fertiliser[i] == 'auto_fertilise':
+                pump_number = i + 2
+                pump.pump(pump_number, 1)
+                # update plant stats
+                plants[i]["fertilizer"] += 5
+                plants[i]["last_fertilized"] = time.time()
+                save_data()
 
         self.grid_layout.do_layout()
 
@@ -323,20 +334,21 @@ class Detail(Screen):
 
     def update_data(self): 
         ''' update data on water or fertilization of plant '''
-
         self.temperature_bar.value = self.plant["temp"]
-        self.water_bar.value = self.plant["water"]
+        self.water_bar.value = plants[0]["water"]
         self.fertilizer_bar.value = self.plant["fertilizer"]
 
     def water(self, object):
         ''' water plants '''
+        print("Trying to water")
         
         # turn on water pump for 2 seconds
-        if self.pump_command_for_water == 'available':
-            pump.pump(1, 2)
+        if self.mainMenu.pump_command_for_water == 'available':
+            print ("Watering")
+            pump.pump(1, 5)
             # update plant stats
-            self.plant["water"] += 5
-            self.plant["last_watered"] = time.time()
+            plants[0]["water"] += 5
+            plants[0]["last_watered"] = time.time()
             self.update_data()
 
             # update plant stats
@@ -344,10 +356,13 @@ class Detail(Screen):
 
     def fertilize(self, object):
         # turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
-        if self.pump_command_for_fertiliser == 'available':
+        plant_id = self.plant["plant_id"] - 1
+        # self.mainMenu.pump_command_for_fertiliser[plant_id] = fertSM[plant_id].step(self.plant["last_fertilized"])
+        if self.mainMenu.pump_command_for_fertiliser[plant_id] == 'available':
+            print ("Fertilizer")
             pump_number = self.plant["plant_id"] + 2
             print pump_number
-            pump.pump(pump_number, 2)
+            pump.pump(pump_number, 1)
             # update plant stats
             self.plant["fertilizer"] += 5
             self.plant["last_fertilized"] = time.time()
@@ -463,7 +478,10 @@ class MyApp(App):
         sm.current = "main"
 
         # Update temperature data every 3 seconds
-        update_interval = 3
+        update_interval = 5
+
+        # Initialize update first
+        main.update()
         Clock.schedule_interval(main.update, update_interval)
 
         return sm
