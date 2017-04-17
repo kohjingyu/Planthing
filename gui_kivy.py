@@ -87,6 +87,7 @@ class MainMenu(Screen):
         self.update_plants()
 
     def update_plants(self, *args):
+        ''' Updating plant data '''
         try:
             self.remove_widget(self.grid_layout)
         except:
@@ -189,7 +190,7 @@ class MainMenu(Screen):
 
         last_water_time = plants[0]["last_watered"]
 
-        self.pump_command = loss_SM.step(last_water_time)
+        self.pump_command = 3 # loss_SM.step(last_water_time)
         if self.pump_command == 'auto_water':
             pump.pump(1,2)
             self.plant["water"] += 5
@@ -207,6 +208,7 @@ class MainMenu(Screen):
 
 class Detail(Screen):
     ''' plant details screen ''' 
+
     def __init__(self, **kwargs):
         super(Detail, self).__init__(**kwargs) # detail superclass
         grid_layout = GridLayout(cols=2)
@@ -277,7 +279,7 @@ class Detail(Screen):
         right_layout.add_widget(self.fertilizer_bar)
 
         # delete button
-        right_layout.add_widget(Button(text="[b][size=18][color=#1c222a]Delete[/color][/size][/b]", on_press=self.remove_plant, markup=True, size_hint=(0.25, progress_bar_height), pos_hint={'x': 0.5 - 0.25/2, 'y': progress_start_y - 4*progress_bar_height}))
+        right_layout.add_widget(Button(text="[b][size=18][color=#ffffff]Delete[/color][/size][/b]", on_press=self.remove_plant, markup=True, size_hint=(0.25, progress_bar_height), pos_hint={'x': 0.5 - 0.25/2, 'y': progress_start_y - 4*progress_bar_height}))
         self.fertilizer_bar = ProgressBar(max=100, size_hint=(0.3, progress_bar_height), pos_hint={'x': 0.5, 'y': progress_start_y - 2*progress_bar_height})
         self.fertilizer_bar.value = 90
         ## model to be corrected
@@ -331,7 +333,7 @@ class Detail(Screen):
             save_data()
 
     def fertilize(self, object):
-        # turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump)
+        ''' turn on fertilizer pump for the appropriate plant (id + 2, as pump 1 is the water pump) '''
         pump_number = self.plant["plant_id"] + 2
         print pump_number
         pump.pump(pump_number, 2)
@@ -343,9 +345,9 @@ class Detail(Screen):
         save_data()
 
         # self.fertilizer_btn.disabled = True
-
+        
     def remove_plant(self, object):
-        # Delete current plant
+        ''' Delete current plant '''
         plants.remove(self.plant)
 
         save_data()
@@ -356,46 +358,55 @@ class Detail(Screen):
         self.mainMenu.update_plants()
 
     def back(self, object):
+        ''' back to main screen '''
         self.manager.transition.direction = "right"
         self.manager.current = "main"
 
 class AddPlant(Screen):
+    ''' Adding plant screen '''
+
     def __init__(self, **kwargs):
         super(AddPlant, self).__init__(**kwargs)
         self.mainMenu = kwargs["main"]
-        grid_layout = GridLayout(cols=2)
+        box_layout = BoxLayout(orientation='horizontal')
 
-        left_layout = GridLayout(cols=1)
-        left_layout.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
+        # back button takes up whole of left side
+        back_button = BoxLayout()
+        back_button.canvas.add(Color(0.968627451, 0.8274509804, 0.5490196078))
+        back_button.canvas.add(Rectangle(pos=(0,0),size=(screen_width/2,screen_height),orientation='horizontal'))
+        back_button.add_widget(Button(text="Back",on_press=self.back,background_color=[1,1,1,1])) # , pos_hint={'x': 0, 'y': 0.95})
 
-        right_layout = GridLayout(cols=1)
+        # right side of the screen is used to add details
+        add_details = BoxLayout(orientation ='vertical')
+
+        # name of plant
         self.name_label = TextInput(text="Plant name here")
-        right_layout.add_widget(self.name_label)
-
+        add_details.add_widget(self.name_label)
+        # name of owner
         self.owner_label = TextInput(text="Owner name")
-        right_layout.add_widget(self.owner_label)
+        add_details.add_widget(self.owner_label)
 
         self.plant_type = 0
         plant_type_dropdown = DropDown()
         self.plant_types = ["Parsley", "Cactus"]
         for plant_type in self.plant_types:
-            btn = Button(text=plant_type, size_hint_y=None, height=30)
+            btn = Button(text=plant_type, size_hint=(None,None), height=30, width=100)
             btn.bind(on_release=lambda btn: plant_type_dropdown.select(btn.text)) # Set button to select text on clicking of the dropdown options
             plant_type_dropdown.add_widget(btn)
         plant_type_dropdown.bind(on_select=self.selectPlantType) # On selection of a plant type, set the text of the button
 
-        self.plant_dropdown_btn = Button(text='Select a Plant Type', size_hint=(None, None))
+        self.plant_dropdown_btn = Button(text='Select a Plant Type', size_hint=(1,1))
         self.plant_dropdown_btn.bind(on_release=plant_type_dropdown.open)
 
-        right_layout.add_widget(self.plant_dropdown_btn)
+        add_details.add_widget(self.plant_dropdown_btn)
 
         self.add_plant_btn = Button(text="Add Plant", on_press=self.add, disabled=True)
-        right_layout.add_widget(self.add_plant_btn)
+        add_details.add_widget(self.add_plant_btn)
 
-        grid_layout.add_widget(left_layout)
-        grid_layout.add_widget(right_layout)
+        box_layout.add_widget(back_button)
+        box_layout.add_widget(add_details)
 
-        self.add_widget(grid_layout)
+        self.add_widget(box_layout)
 
     def selectPlantType(self, object, btn_text):
         setattr(self.plant_dropdown_btn, 'text', btn_text)
@@ -437,6 +448,7 @@ class AddPlant(Screen):
         self.add_plant_btn.disabled = True
 
 class MyApp(App):
+    ''' Building the app '''
     def build(self):
         sm = ScreenManager()
         main = MainMenu(name="main")
