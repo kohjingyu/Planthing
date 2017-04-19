@@ -377,21 +377,21 @@ class AddPlant(Screen):
         self.mainMenu = kwargs["main"]
         grid_layout = GridLayout(cols=2)
 
-        left_layout = GridLayout(cols=1)
-        left_layout.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
+        back_button = BoxLayout(orientation='vertical')
+        back_button.add_widget(Button(text="Back", on_press=self.back, size_hint=(1, .05), pos_hint={'x': 0, 'y': 0.95}))
 
-        right_layout = GridLayout(cols=1)
+        add_plant_det = BoxLayout(orientation='vertical')
         self.name_label = TextInput(text="Plant name here")
-        right_layout.add_widget(self.name_label)
+        add_plant_det.add_widget(self.name_label)
 
         self.owner_label = TextInput(text="Owner name")
-        right_layout.add_widget(self.owner_label)
+        add_plant_det.add_widget(self.owner_label)
 
         self.plant_type = 0
         plant_type_dropdown = DropDown()
         self.plant_types = ["Parsley", "Cactus"]
         for plant_type in self.plant_types:
-            btn = Button(text=plant_type, size_hint_y=None, height=30)
+            btn = Button(text=plant_type, size_hint=(None,None), height=30)
             btn.bind(on_release=lambda btn: plant_type_dropdown.select(btn.text)) # Set button to select text on clicking of the dropdown options
             plant_type_dropdown.add_widget(btn)
         plant_type_dropdown.bind(on_select=self.selectPlantType) # On selection of a plant type, set the text of the button
@@ -399,13 +399,13 @@ class AddPlant(Screen):
         self.plant_dropdown_btn = Button(text='Select a Plant Type', size_hint=(None, None))
         self.plant_dropdown_btn.bind(on_release=plant_type_dropdown.open)
 
-        right_layout.add_widget(self.plant_dropdown_btn)
+        add_plant_det.add_widget(self.plant_dropdown_btn)
 
         self.add_plant_btn = Button(text="Add Plant", on_press=self.add, disabled=True)
-        right_layout.add_widget(self.add_plant_btn)
+        add_plant_det.add_widget(self.add_plant_btn)
 
-        grid_layout.add_widget(left_layout)
-        grid_layout.add_widget(right_layout)
+        grid_layout.add_widget(back_button)
+        grid_layout.add_widget(add_plant_det)
 
         self.add_widget(grid_layout)
 
