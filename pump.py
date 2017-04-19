@@ -16,31 +16,31 @@ def pump(pumpnumber,duration):
     
     if pumpnumber == 1: #waterpump
         GPIO.setup(in1_pin, GPIO.OUT)
-        p1=GPIO.PWM(in1_pin, 100)
+        p1=GPIO.PWM(in1_pin, 150)
 
         p1.start(100)
         time.sleep(duration)
         p1.stop()
     elif pumpnumber == 2:
         GPIO.setup(in2_pin, GPIO.OUT)
-        p2=GPIO.PWM(in2_pin, 50)
+        p2=GPIO.PWM(in2_pin, 150)
 
-        p2.start(30)
+        p2.start(100)
         time.sleep(duration)
-        p2.stop()        
+        p2.stop()
     elif pumpnumber == 3:
         GPIO.setup(in3_pin, GPIO.OUT)
-        p3=GPIO.PWM(in3_pin, 50)
+        p3=GPIO.PWM(in3_pin, 150)
 
-        p3.start(30)
+        p3.start(100)
         time.sleep(duration)
-        p3.stop()        
+        p3.stop()
     elif pumpnumber == 4:
         GPIO.setup(in4_pin, GPIO.OUT)
 
-        p4=GPIO.PWM(in4_pin, 50)
+        p4=GPIO.PWM(in4_pin, 150)
 
-        p4.start(30)
+        p4.start(50)
         time.sleep(duration)
         p4.stop()
     GPIO.cleanup()        
@@ -53,7 +53,3 @@ def pump(pumpnumber,duration):
 #
 #except KeyboardInterrupt:
 #    pass
-
-
-
-#pump(2, 3)
