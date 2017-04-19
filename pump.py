@@ -40,7 +40,7 @@ def pump(pumpnumber,duration):
 
         p4=GPIO.PWM(in4_pin, 150)
 
-        p4.start(50)
+        p4.start(70)
         time.sleep(duration)
         p4.stop()
     GPIO.cleanup()        
